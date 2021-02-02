@@ -1,3 +1,5 @@
 
 VenvDisasterResponsePipeline/*
 JupyterWorkspace/*
+*.pkl
+*.db
