@@ -1,25 +1,70 @@
 import sys
+import pandas as pd
+import re
+import numpy as np
+from sqlalchemy import create_engine
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+from joblib import dump
+
 
 
 def load_data(database_filepath):
-    pass
+    engine = create_engine('sqlite:///'+database_filepath)
+    df = pd.read_sql_table('categorized_messages', engine)
+    X = df['message']
+    y = df.drop(columns=['id','message','original','genre'])
 
+    category_names = y.columns.tolist()
+
+    return X, y, category_names
 
 def tokenize(text):
-    pass
+
+    text = re.sub(r'[^a-zA-Z0-9äöüÄÖÜß ]', '', text.lower())
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+
+    clean_tokens = []
+    for tok in tokens:
+        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+        clean_tokens.append(clean_tok)
+
+    return clean_tokens
 
 
 def build_model():
-    pass
+    pipeline = Pipeline([
+        ('vect', CountVectorizer(tokenizer = tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+    ])
 
+    return pipeline
 
-def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+def evaluate_model(model, X_test, y_test, category_names):
+    y_pred = pd.DataFrame(model.predict(X_test), columns=category_names)
+    scores = {}
 
+    for col in category_names:
+        scores[col] = classification_report(y_test[col], y_pred[col], output_dict=True)
+
+    for key in scores:
+        try:
+            print('{}, train: {:.2f}, text: {:.2f}'.format(key, scores[key]['accuracy']))
+        except:
+            continue
 
 def save_model(model, model_filepath):
-    pass
-
+    # Save to file in the current working directory
+    joblib_file = model_filepath
+    dump(model, joblib_file)
 
 def main():
     if len(sys.argv) == 3:
@@ -27,13 +72,13 @@ def main():
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-        
+
         print('Building model...')
         model = build_model()
-        
+
         print('Training model...')
         model.fit(X_train, Y_train)
-        
+
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 
