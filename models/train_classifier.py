@@ -12,6 +12,7 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from joblib import dump
+import pickle
 
 
 
@@ -43,13 +44,14 @@ def build_model():
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer = tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        ('clf', MultiOutputClassifier(RandomForestClassifier(n_jobs=-1)))
     ])
 
     return pipeline
 
 def evaluate_model(model, X_test, y_test, category_names):
     y_pred = pd.DataFrame(model.predict(X_test), columns=category_names)
+    y_test = pd.DataFrame(y_test, columns=category_names)
     scores = {}
 
     for col in category_names:
@@ -64,7 +66,7 @@ def evaluate_model(model, X_test, y_test, category_names):
 def save_model(model, model_filepath):
     # Save to file in the current working directory
     joblib_file = model_filepath
-    dump(model, joblib_file)
+    dump(model, joblib_file, protocol=pickle.HIGHEST_PROTOCOL)
 
 def main():
     if len(sys.argv) == 3:
@@ -72,6 +74,8 @@ def main():
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test  = np.array(X_train), np.array(X_test)
+        Y_train, Y_test = np.array(Y_train), np.array(Y_test)
 
         print('Building model...')
         model = build_model()
