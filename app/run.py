@@ -2,8 +2,12 @@ import json
 import plotly
 import pandas as pd
 
+import re
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+
 
 from flask import Flask
 from flask import render_template, request, jsonify
@@ -15,12 +19,44 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 
 def tokenize(text):
-    tokens = word_tokenize(text)
-    lemmatizer = WordNetLemmatizer()
+    '''
+    INPUT - text (string)
+    OUTPUT - tokenized and cleansed text (string)
 
+    This function tokenizes and cleanses a string by the following steps:
+        1. any url will be replaced by the string 'urlplaceholder'
+        2. any puctuation and capitalization will be removed
+        3. the text will be tokenized
+        4. any stopword will be removed
+        5. each word will be first lemmatized and then stemmed
+    '''
+
+    # get list of all urls using regex
+    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    detected_urls = re.findall(url_regex, text)
+
+    # replace each url in text string with placeholder
+    for url in detected_urls:
+        text = text.replace(url, 'urlplaceholder')
+
+    # Remove punctuation characters
+    text = re.sub(r'[^a-zA-Z0-9äöüÄÖÜß ]', '', text.lower())
+
+    # tokenize
+    tokens = word_tokenize(text)
+
+    # Remove stop words
+    tokens = [tok for tok in tokens if tok not in stopwords.words("english")]
+
+    # instantiate lemmatizer and stemmer
+    lemmatizer = WordNetLemmatizer()
+    stemmer = PorterStemmer()
+
+    # lemmatize and stemm
     clean_tokens = []
     for tok in tokens:
-        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+        lemm_tok = lemmatizer.lemmatize(tok).lower().strip()
+        clean_tok = stemmer.stem(tok)
         clean_tokens.append(clean_tok)
 
     return clean_tokens
