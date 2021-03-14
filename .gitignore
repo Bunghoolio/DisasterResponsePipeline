@@ -1,5 +1,4 @@
 
 VenvDisasterResponsePipeline/*
 JupyterWorkspace/Workbench_gitignore/*
-*.pkl
 *.db
