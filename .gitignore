@@ -2,3 +2,4 @@
 VenvDisasterResponsePipeline/*
 JupyterWorkspace/Workbench_gitignore/*
 *.db
+JupyterWorkspace/.ipynb_checkpoints/*
