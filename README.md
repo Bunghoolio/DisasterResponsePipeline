@@ -25,7 +25,7 @@ This project was initiated as part of my Udacity Data Science Nano Degree Course
 The dataset used in this project was provided by [Figure Eight Inc.](https://en.wikipedia.org/wiki/Figure_Eight_Inc.). This dataset contains messages that were sent during disaster events via social media.
 Leveraging this dataset a ML classifier was built to identify messages and their related events.
 
-Within this project, data cleaning and model building steps will be performed leveraging pipelines, GridSearch and automation. The final model will be used in a Flask Web App to enable end users to classify any (English) message to any related disaster.
+Within this project, data cleaning and model building steps was performed leveraging pipelines, GridSearch and automation. The final model will be used in a Flask Web App to enable end users to classify any (English) message to any related disaster event.
 
 ## File Descriptions <a name ='files'></a>
 ### 1. ETL pipeline
@@ -63,8 +63,5 @@ The .ipynb-file as well contains the steps for the model evaluation including th
 
   3. Go to http://0.0.0.0:3001/ or to http://localhost:3001/
 
-The file structure is arranged as below:
-`
-`
-
 ### Licensing, Authors, and Acknowledgements <a name ='licensing'></a>
+I am grateful for the opportunity testing my knowledge within this challenging project provided by Udacity and Figure8. For anyone I was able to inspire by my code, feel free to use the code here as you would like!
