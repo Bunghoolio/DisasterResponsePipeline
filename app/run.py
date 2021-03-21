@@ -79,6 +79,11 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
+    #category top 10 prep
+    cat_cnt = df.drop(columns=['id','message','original','genre','related']).sum(axis=0).sort_values(ascending=False)
+    cat_top = cat_cnt.head(10)
+    cat_lab = list(cat_top.index)
+
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -97,6 +102,24 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=cat_lab,
+                    y=cat_top
+                )
+            ],
+
+            'layout': {
+                'title': 'Top 10 Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
                 }
             }
         }
