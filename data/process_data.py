@@ -57,7 +57,7 @@ def clean_data(df):
         # set each value to be the last character of the string
         categories[column] = categories[column].str[-1]
         # convert column from string to numeric
-        categories[column] = categories[column].astype(int)
+        categories[column] = np.sign(categories[column].astype(int))
 
     #dropping initial categories column and joining processed category df
     df = pd.concat([df.drop(columns='categories'), categories], axis=1)
