@@ -9,7 +9,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.stem.porter import PorterStemmer
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import classification_report
@@ -70,13 +70,11 @@ def tokenize(text):
 
     # instantiate lemmatizer and stemmer
     lemmatizer = WordNetLemmatizer()
-    stemmer = PorterStemmer()
 
     # lemmatize and stemm
     clean_tokens = []
     for tok in tokens:
-        lemm_tok = lemmatizer.lemmatize(tok).lower().strip()
-        clean_tok = stemmer.stem(tok)
+        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
         clean_tokens.append(clean_tok)
 
     return clean_tokens
@@ -84,19 +82,28 @@ def tokenize(text):
 
 def build_model():
     '''
-    This functions instantiates the model pipeline:
+    INPUT: None
+    OUTPUT: GridSearchCV object
+
+    This functions instantiates the model pipeline and performs a GridSearch
     Classifier: Gradient Boosting classifier
-        learning_rate = 0.05
-        n_estimators = 200
+    GridSearch Parameters:
+        learning_rate = [.05, .1]
+        n_estimators = [50, 200]
     '''
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer = tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(GradientBoostingClassifier(learning_rate=0.05,
-                                                                 n_estimators=200)))
+        ('clf', MultiOutputClassifier(GradientBoostingClassifier()))
     ])
 
-    return pipeline
+    params_gbc = {'clf__estimator__n_estimators': [50, 200],
+                  'clf__estimator__learning_rate': [.05, .1]
+                 }
+
+    cv = GridSearchCV(pipeline, param_grid=params_gbc, verbose=3, return_train_score=True)
+
+    return cv
 
 def evaluate_model(model, X_test, y_test, category_names):
     '''
