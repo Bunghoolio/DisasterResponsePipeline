@@ -42,12 +42,10 @@ The ML Pipeline performs the following steps:
 * loading the data from the SQLite database
 * building the parser and ML pipeline
 * splitting data into train and test dataset
-* training pipeline
+* training pipeline and performing GridSearchCV
 * test pipeline
 
 The ML Pipeline is available in this project as a .ipynb-file `.\JupyterWorkspace\ML Pipeline Preparation.ipynb` and as a .py-file `.\models\train_classifier.py`
-
-The .ipynb-file as well contains the steps for the model evaluation including the GridSearch steps.
 
 ### 3. Flask Web App
 
